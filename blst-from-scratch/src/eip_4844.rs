@@ -157,7 +157,7 @@ pub fn load_trusted_setup_filename_rust(filename: &str) -> FsKZGSettings {
     load_trusted_setup_file_rust(&mut file)
 }
 
-fn fr_batch_inv(out: &mut [FsFr], a: &[FsFr], len: usize) {
+pub fn fr_batch_inv(out: &mut [FsFr], a: &[FsFr], len: usize) {
     let prod: &mut Vec<FsFr> = &mut vec![FsFr::default(); len];
     let mut i: usize = 1;
 
