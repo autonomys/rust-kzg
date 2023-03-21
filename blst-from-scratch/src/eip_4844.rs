@@ -222,7 +222,7 @@ pub fn verify_kzg_proof_rust(
 }
 
 pub fn compute_kzg_proof_rust_y(p: &FsPoly, x: &FsFr, y: &FsFr, s: &FsKZGSettings) -> FsG1 {
-    assert!(p.len() > s.secret_g1.len());
+    assert!(p.len() <= s.secret_g1.len());
 
     //let y: FsFr = evaluate_polynomial_in_evaluation_form_rust(p, x, s);
 
