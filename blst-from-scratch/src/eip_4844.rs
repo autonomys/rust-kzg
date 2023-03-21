@@ -221,6 +221,69 @@ pub fn verify_kzg_proof_rust(
         .unwrap_or(false)
 }
 
+pub fn compute_kzg_proof_rust_y(p: &FsPoly, x: &FsFr, y: &FsFr, s: &FsKZGSettings) -> FsG1 {
+    assert!(p.len() > s.secret_g1.len());
+
+    //let y: FsFr = evaluate_polynomial_in_evaluation_form_rust(p, x, s);
+
+    let mut tmp: FsFr;
+    let roots_of_unity: Vec<FsFr> = s.fs.expanded_roots_of_unity.clone();
+
+    //reverse_bit_order(&mut roots_of_unity);
+    let mut i: usize = 0;
+    let mut m: usize = 0;
+
+    let mut q: FsPoly = FsPoly::new(p.len()).unwrap();
+
+    let mut inverses_in: Vec<FsFr> = vec![FsFr::default(); p.len()];
+    let mut inverses: Vec<FsFr> = vec![FsFr::default(); p.len()];
+
+    while i < q.len() {
+        if x.equals(&roots_of_unity[i]) {
+            m = i + 1;
+            continue;
+        }
+        // (p_i - y) / (ω_i - x)
+        q.coeffs[i] = p.coeffs[i].sub(&y);
+        inverses_in[i] = roots_of_unity[i].sub(x);
+        i += 1;
+    }
+
+    fr_batch_inv(&mut inverses, &inverses_in, q.len());
+
+    i = 0;
+    while i < q.len() {
+        q.coeffs[i] = q.coeffs[i].mul(&inverses[i]);
+        i += 1;
+    }
+
+    if m > 0 {
+        // ω_m == x
+        q.coeffs[m] = FsFr::zero();
+        m -= 1;
+        i = 0;
+        while i < q.coeffs.len() {
+            if i == m {
+                continue;
+            }
+            // (p_i - y) * ω_i / (x * (x - ω_i))
+            tmp = x.sub(&roots_of_unity[i]);
+            inverses_in[i] = tmp.mul(x);
+            i += 1;
+        }
+        fr_batch_inv(&mut inverses, &inverses_in, q.coeffs.len());
+        i = 0;
+        while i < q.coeffs.len() {
+            tmp = p.coeffs[i].sub(&y);
+            tmp = tmp.mul(&roots_of_unity[i]);
+            tmp = tmp.mul(&inverses[i]);
+            q.coeffs[m] = q.coeffs[m].add(&tmp);
+            i += 1;
+        }
+    }
+    g1_lincomb(&s.secret_g1, &q.coeffs)
+}
+
 pub fn compute_kzg_proof_rust(p: &FsPoly, x: &FsFr, s: &FsKZGSettings) -> FsG1 {
     assert!(p.len() <= s.secret_g1.len());
 
