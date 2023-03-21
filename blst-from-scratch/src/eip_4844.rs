@@ -229,7 +229,7 @@ pub fn compute_kzg_proof_rust(p: &FsPoly, x: &FsFr, s: &FsKZGSettings) -> FsG1 {
     let mut tmp: FsFr;
     let mut roots_of_unity: Vec<FsFr> = s.fs.expanded_roots_of_unity.clone();
 
-    reverse_bit_order(&mut roots_of_unity);
+    //reverse_bit_order(&mut roots_of_unity);
     let mut i: usize = 0;
     let mut m: usize = 0;
 
@@ -294,9 +294,10 @@ pub fn evaluate_polynomial_in_evaluation_form_rust(
     let mut inverses_in: Vec<FsFr> = vec![FsFr::default(); p.len()];
     let mut inverses: Vec<FsFr> = vec![FsFr::default(); p.len()];
     let mut i: usize = 0;
-    let mut roots_of_unity: Vec<FsFr> = s.fs.expanded_roots_of_unity.clone();
+    let roots_of_unity: Vec<FsFr> = s.fs.expanded_roots_of_unity.clone();
+    //let mut roots_of_unity: Vec<FsFr> = s.fs.expanded_roots_of_unity.clone();
 
-    reverse_bit_order(&mut roots_of_unity);
+    //reverse_bit_order(&mut roots_of_unity);
 
     while i < p.len() {
         if x.equals(&roots_of_unity[i]) {
