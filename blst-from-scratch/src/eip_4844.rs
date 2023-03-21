@@ -221,7 +221,7 @@ pub fn verify_kzg_proof_rust(
         .unwrap_or(false)
 }
 
-pub fn compute_kzg_proof_rust_y(p: &FsPoly, x: &FsFr, y: &FsFr, s: &FsKZGSettings) -> FsG1 {
+pub fn compute_kzg_proof_rust_index(p: &FsPoly, index:usize, s: &FsKZGSettings) -> FsG1 {
     assert!(p.len() <= s.secret_g1.len());
 
     //let y: FsFr = evaluate_polynomial_in_evaluation_form_rust(p, x, s);
@@ -230,6 +230,9 @@ pub fn compute_kzg_proof_rust_y(p: &FsPoly, x: &FsFr, y: &FsFr, s: &FsKZGSetting
     let roots_of_unity: Vec<FsFr> = s.fs.expanded_roots_of_unity.clone();
 
     //reverse_bit_order(&mut roots_of_unity);
+    let x = roots_of_unity[index];
+    let y = p.get_coeff_at(index);
+
     let mut i: usize = 0;
     let mut m: usize = 0;
 
@@ -245,7 +248,7 @@ pub fn compute_kzg_proof_rust_y(p: &FsPoly, x: &FsFr, y: &FsFr, s: &FsKZGSetting
         }
         // (p_i - y) / (ω_i - x)
         q.coeffs[i] = p.coeffs[i].sub(&y);
-        inverses_in[i] = roots_of_unity[i].sub(x);
+        inverses_in[i] = roots_of_unity[i].sub(&x);
         i += 1;
     }
 
@@ -268,7 +271,7 @@ pub fn compute_kzg_proof_rust_y(p: &FsPoly, x: &FsFr, y: &FsFr, s: &FsKZGSetting
             }
             // (p_i - y) * ω_i / (x * (x - ω_i))
             tmp = x.sub(&roots_of_unity[i]);
-            inverses_in[i] = tmp.mul(x);
+            inverses_in[i] = tmp.mul(&x);
             i += 1;
         }
         fr_batch_inv(&mut inverses, &inverses_in, q.coeffs.len());
