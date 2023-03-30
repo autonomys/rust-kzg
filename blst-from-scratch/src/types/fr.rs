@@ -221,3 +221,117 @@ impl FsFr {
         Self(fr)
     }
 }
+/// Constant representing the modulus
+/// q = 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
+const MODULUS:[u64; 4] = [
+    0xffff_ffff_0000_0001,
+    0x53bd_a402_fffe_5bfe,
+    0x3339_d808_09a1_d805,
+    0x73ed_a753_299d_7d48,
+];
+/// INV = -(q^{-1} mod 2^64) mod 2^64
+const INV: u64 = 0xffff_fffe_ffff_ffff;
+
+pub const fn mac(a: u64, b: u64, c: u64, carry: u64) -> (u64, u64) {
+    let ret = (a as u128) + ((b as u128) * (c as u128)) + (carry as u128);
+    (ret as u64, (ret >> 64) as u64)
+}
+pub const fn adc(a: u64, b: u64, carry: u64) -> (u64, u64) {
+    let ret = (a as u128) + (b as u128) + (carry as u128);
+    (ret as u64, (ret >> 64) as u64)
+}
+
+
+
+impl FsFr {
+    /// Reduces the scalar and returns it multiplied by the montgomery
+    /// radix.
+    pub fn reduce(&self) -> Self {
+        let mut val: [u64; 4] = [0; 4];
+
+        unsafe {
+            blst_uint64_from_fr(val.as_mut_ptr(), &self.0);
+        }
+        Self::montgomery_reduce(val[0], val[1], val[2], val[3], 0, 0, 0, 0)
+    }
+    fn montgomery_reduce(
+        r0: u64,
+        r1: u64,
+        r2: u64,
+        r3: u64,
+        r4: u64,
+        r5: u64,
+        r6: u64,
+        r7: u64,
+    ) -> FsFr {
+        // The Montgomery reduction here is based on Algorithm 14.32 in
+        // Handbook of Applied Cryptography
+        // <http://cacr.uwaterloo.ca/hac/about/chap14.pdf>.
+    
+        let k = r0.wrapping_mul(INV);
+        let (_, carry) = mac(r0, k, MODULUS[0], 0);
+        let (r1, carry) = mac(r1, k, MODULUS[1], carry);
+        let (r2, carry) = mac(r2, k, MODULUS[2], carry);
+        let (r3, carry) = mac(r3, k, MODULUS[3], carry);
+        let (r4, carry2) = adc(r4, 0, carry);
+    
+        let k = r1.wrapping_mul(INV);
+        let (_, carry) = mac(r1, k, MODULUS[0], 0);
+        let (r2, carry) = mac(r2, k, MODULUS[1], carry);
+        let (r3, carry) = mac(r3, k, MODULUS[2], carry);
+        let (r4, carry) = mac(r4, k, MODULUS[3], carry);
+        let (r5, carry2) = adc(r5, carry2, carry);
+    
+        let k = r2.wrapping_mul(INV);
+        let (_, carry) = mac(r2, k, MODULUS[0], 0);
+        let (r3, carry) = mac(r3, k, MODULUS[1], carry);
+        let (r4, carry) = mac(r4, k, MODULUS[2], carry);
+        let (r5, carry) = mac(r5, k, MODULUS[3], carry);
+        let (r6, carry2) = adc(r6, carry2, carry);
+    
+        let k = r3.wrapping_mul(INV);
+        let (_, carry) = mac(r3, k, MODULUS[0], 0);
+        let (r4, carry) = mac(r4, k, MODULUS[1], carry);
+        let (r5, carry) = mac(r5, k, MODULUS[2], carry);
+        let (r6, carry) = mac(r6, k, MODULUS[3], carry);
+        let (r7, _) = adc(r7, carry2, carry);
+    
+        let mut modulus = FsFr::default();
+            unsafe {
+                blst_fr_from_uint64(&mut modulus.0, MODULUS.clone().as_ptr());
+            }
+    
+        let mut ret = FsFr::default();
+        let res = [r4, r5, r6, r7];
+            unsafe {
+                blst_fr_from_uint64(&mut ret.0, res.as_ptr());
+            }
+        // Result may be within MODULUS of the correct value
+        ret.sub(&modulus)
+    }
+    
+    pub fn divn(&mut self, mut n: u32) {
+        if n >= 256 {
+            *self = Self::zero();
+            return;
+        }
+
+        while n >= 64 {
+            let mut t = 0;
+            for i in self.to_u64_arr().iter_mut().rev() {
+                core::mem::swap(&mut t, i);
+            }
+            n -= 64;
+        }
+
+        if n > 0 {
+            let mut t = 0;
+            for i in self.to_u64_arr().iter_mut().rev() {
+                let t2 = *i << (64 - n);
+                *i >>= n;
+                *i |= t;
+                t = t2;
+            }
+        }
+    }
+}
