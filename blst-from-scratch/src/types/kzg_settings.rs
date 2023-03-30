@@ -6,7 +6,7 @@ use alloc::vec::Vec;
 use kzg::{FFTFr, FFTSettings, Fr, G1Mul, G2Mul, KZGSettings, Poly, G1, G2};
 
 use crate::consts::{G1_GENERATOR, G2_GENERATOR};
-use crate::kzg_proofs::{g1_linear_combination, pairings_verify};
+use crate::kzg_proofs::{g1_linear_combination, pairings_verify, msm_variable_base};
 use crate::types::fft_settings::FsFFTSettings;
 use crate::types::fr::FsFr;
 use crate::types::g1::FsG1;
@@ -58,8 +58,7 @@ impl KZGSettings<FsFr, FsG1, FsG2, FsFFTSettings, FsPoly> for FsKZGSettings {
             return Err(String::from("Polynomial is longer than secret g1"));
         }
 
-        let mut out = FsG1::default();
-        g1_linear_combination(&mut out, &self.secret_g1, &poly.coeffs, poly.coeffs.len());
+        let out = msm_variable_base(&self.secret_g1, &poly.coeffs);
 
         Ok(out)
     }
