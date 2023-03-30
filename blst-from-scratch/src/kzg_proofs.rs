@@ -109,7 +109,7 @@ pub fn msm_variable_base(points: &[FsG1], scalars: &[FsFr]) -> FsG1 {
                         scalar.divn(w_start as u32);
 
                         // We mod the remaining bits by the window size.
-                        let scalar_limbs = scalar.to_u64_arr();
+                        let scalar_limbs = scalar.0.l;
                         let scalar = scalar_limbs[0] % (1 << c);
 
 
