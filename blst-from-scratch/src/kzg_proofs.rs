@@ -192,3 +192,16 @@ pub fn pairings_verify(a1: &FsG1, a2: &FsG2, b1: &FsG1, b2: &FsG2) -> bool {
         blst_fp12_is_one(&gt_point)
     }
 }
+mod tests {
+
+    #[allow(unused_imports)]
+    use super::*;
+#[test]
+fn msm_variable_base_test() {
+    let points = vec![FsG1::generator();3];
+    let scalars = vec![FsFr::from_u64(100u64);3];
+    let premultiplied = FsG1::generator().mul(&FsFr::from_u64(300u64));
+    let subject = msm_variable_base(&points, &scalars);
+    assert_eq!(subject, premultiplied);
+}
+}
