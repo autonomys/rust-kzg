@@ -247,11 +247,7 @@ impl FsFr {
     /// Reduces the scalar and returns it multiplied by the montgomery
     /// radix.
     pub fn reduce(&self) -> Self {
-        let mut val: [u64; 4] = [0; 4];
-
-        unsafe {
-            blst_uint64_from_fr(val.as_mut_ptr(), &self.0);
-        }
+        let val = self.to_u64_arr();
         Self::montgomery_reduce(val[0], val[1], val[2], val[3], 0, 0, 0, 0)
     }
     fn montgomery_reduce(
@@ -295,19 +291,9 @@ impl FsFr {
         let (r5, carry) = mac(r5, k, MODULUS[2], carry);
         let (r6, carry) = mac(r6, k, MODULUS[3], carry);
         let (r7, _) = adc(r7, carry2, carry);
-    
-        let mut modulus = FsFr::default();
-            unsafe {
-                blst_fr_from_uint64(&mut modulus.0, MODULUS.clone().as_ptr());
-            }
-    
-        let mut ret = FsFr::default();
-        let res = [r4, r5, r6, r7];
-            unsafe {
-                blst_fr_from_uint64(&mut ret.0, res.as_ptr());
-            }
-        // Result may be within MODULUS of the correct value
-        ret.sub(&modulus)
+       
+        FsFr::from_u64_arr(&[r4, r5, r6, r7])
+        
     }
     
     pub fn divn(&mut self, mut n: u32) {
@@ -318,7 +304,7 @@ impl FsFr {
 
         while n >= 64 {
             let mut t = 0;
-            for i in self.to_u64_arr().iter_mut().rev() {
+            for i in self.0.l.iter_mut().rev() {
                 core::mem::swap(&mut t, i);
             }
             n -= 64;
@@ -326,7 +312,7 @@ impl FsFr {
 
         if n > 0 {
             let mut t = 0;
-            for i in self.to_u64_arr().iter_mut().rev() {
+            for i in self.0.l.iter_mut().rev() {
                 let t2 = *i << (64 - n);
                 *i >>= n;
                 *i |= t;
