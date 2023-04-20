@@ -6,7 +6,9 @@ use alloc::vec::Vec;
 use kzg::{FFTFr, FFTSettings, Fr, G1Mul, G2Mul, KZGSettings, Poly, G1, G2};
 
 use crate::consts::{G1_GENERATOR, G2_GENERATOR};
-use crate::kzg_proofs::{g1_linear_combination, pairings_verify, msm_variable_base};
+#[cfg(feature = "parallel")]
+use crate::kzg_proofs::msm_variable_base;
+use crate::kzg_proofs::{g1_linear_combination, pairings_verify};
 use crate::types::fft_settings::FsFFTSettings;
 use crate::types::fr::FsFr;
 use crate::types::g1::FsG1;
@@ -57,12 +59,14 @@ impl KZGSettings<FsFr, FsG1, FsG2, FsFFTSettings, FsPoly> for FsKZGSettings {
         if poly.coeffs.len() > self.secret_g1.len() {
             return Err(String::from("Polynomial is longer than secret g1"));
         }
-
+        let mut out = FsG1::default();
+        #[cfg(feature = "parallel")]
         let out = msm_variable_base(&self.secret_g1, &poly.coeffs);
-
+        #[cfg(not(feature = "parallel"))]
+        g1_linear_combination(&mut out, &self.secret_g1, &poly.coeffs, poly.coeffs.len());
         Ok(out)
     }
-
+    
     fn compute_proof_single(&self, p: &FsPoly, x: &FsFr) -> Result<FsG1, String> {
         self.compute_proof_multi(p, x, 1)
     }
