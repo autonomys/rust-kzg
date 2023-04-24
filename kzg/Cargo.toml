@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 # TODO: Use `std` feature once https://github.com/supranational/blst/pull/150 or similar upstreamed
 blst = { git = 'https://github.com/subspace/blst.git', rev = "017edf9d7b943813b9ba2804a9eda20607b48139", default-features = false }
-sha2 = "0.10.6"
+sha2 = { version = "0.10.6", default-features = false }
 
 [features]
 default = [
