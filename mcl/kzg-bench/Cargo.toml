@@ -5,7 +5,8 @@ edition = "2021"
 
 [dependencies]
 mcl_rust = { path = '../kzg' }
-blst = {'git' = 'https://github.com/supranational/blst.git'}
+# TODO: Use `std` feature once https://github.com/supranational/blst/pull/150 or similar upstreamed
+blst = { git = 'https://github.com/subspace/blst.git', rev = "017edf9d7b943813b9ba2804a9eda20607b48139" }
 kzg = { path = "../../kzg" }
 kzg-bench = { path = "../../kzg-bench" }
 
