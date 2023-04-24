@@ -2,6 +2,8 @@ use blst::{
     blst_fp2, blst_p2, blst_p2_add_or_double, blst_p2_cneg, blst_p2_double, blst_p2_is_equal,
     blst_p2_mult, blst_scalar, blst_scalar_from_fr,
 };
+#[cfg(feature = "rand")]
+use kzg::Fr;
 use kzg::{G2Mul, G2};
 
 use crate::consts::{G2_GENERATOR, G2_NEGATIVE_GENERATOR};
@@ -74,5 +76,11 @@ impl FsG2 {
 
     pub fn default() -> Self {
         Self(blst_p2::default())
+    }
+
+    #[cfg(feature = "rand")]
+    pub fn rand() -> Self {
+        let result: FsG2 = G2_GENERATOR;
+        result.mul(&FsFr::rand())
     }
 }

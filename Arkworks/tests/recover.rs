@@ -1,5 +1,5 @@
 #[cfg(test)]
-pub mod recover_tests {
+mod recover_tests {
     use arkworks::kzg_proofs::FFTSettings;
     use arkworks::kzg_types::FsFr as Fr;
     use arkworks::utils::PolyData;
@@ -14,5 +14,10 @@ pub mod recover_tests {
     #[test]
     fn recover_random_() {
         recover_random::<Fr, FFTSettings, PolyData, PolyData>();
+    }
+
+    #[test]
+    fn more_than_half_missing_() {
+        more_than_half_missing::<Fr, FFTSettings, PolyData, PolyData>();
     }
 }

@@ -253,6 +253,10 @@ impl G1 for ZkG1Projective {
         self.double()
     }
 
+    fn add(&self, b: &Self) -> Self {
+        self + b
+    }
+
     fn sub(&self, b: &Self) -> Self {
         self + (-b)
     }
@@ -387,5 +391,9 @@ impl KZGSettings<blsScalar, ZkG1Projective, ZkG2Projective, ZkFFTSettings, ZPoly
 
     fn get_expanded_roots_of_unity_at(&self, i: usize) -> blsScalar {
         self.fs.get_expanded_roots_of_unity_at(i)
+    }
+
+    fn get_roots_of_unity_at(&self, i: usize) -> blsScalar {
+        self.fs.get_roots_of_unity_at(i)
     }
 }

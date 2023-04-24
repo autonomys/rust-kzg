@@ -1,5 +1,5 @@
 #[cfg(test)]
-pub mod recover_tests {
+mod recover_tests {
     use kzg_bench::tests::recover::*;
     use mcl_rust::data_types::fr::Fr;
     use mcl_rust::fk20_fft::FFTSettings;
@@ -17,5 +17,11 @@ pub mod recover_tests {
     fn recover_random_() {
         assert!(init(CurveType::BLS12_381));
         recover_random::<Fr, FFTSettings, Polynomial, Polynomial>();
+    }
+
+    #[test]
+    fn more_than_half_missing_() {
+        assert!(init(CurveType::BLS12_381));
+        more_than_half_missing::<Fr, FFTSettings, Polynomial, Polynomial>();
     }
 }

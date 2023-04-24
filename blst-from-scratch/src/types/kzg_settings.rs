@@ -16,7 +16,6 @@ use crate::types::poly::FsPoly;
 #[derive(Debug, Clone, Default)]
 pub struct FsKZGSettings {
     pub fs: FsFFTSettings,
-    // Both secret_g1 and secret_g2 have the same number of elements
     pub secret_g1: Vec<FsG1>,
     pub secret_g2: Vec<FsG2>,
 }
@@ -94,7 +93,9 @@ impl KZGSettings<FsFr, FsG1, FsG2, FsFFTSettings, FsPoly> for FsKZGSettings {
         }
 
         // Construct x^n - x0^n = (x - x0.w^0)(x - x0.w^1)...(x - x0.w^(n-1))
-        let mut divisor: FsPoly = FsPoly { coeffs: Vec::new() };
+        let mut divisor = FsPoly {
+            coeffs: Vec::with_capacity(n),
+        };
 
         // -(x0^n)
         let x_pow_n = x0.pow(n);
@@ -165,5 +166,9 @@ impl KZGSettings<FsFr, FsG1, FsG2, FsFFTSettings, FsPoly> for FsKZGSettings {
 
     fn get_expanded_roots_of_unity_at(&self, i: usize) -> FsFr {
         self.fs.get_expanded_roots_of_unity_at(i)
+    }
+
+    fn get_roots_of_unity_at(&self, i: usize) -> FsFr {
+        self.fs.get_roots_of_unity_at(i)
     }
 }

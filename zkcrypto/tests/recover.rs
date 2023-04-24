@@ -1,5 +1,5 @@
 #[cfg(test)]
-pub mod recover_tests {
+mod recover_tests {
     use kzg_bench::tests::recover::*;
     use zkcrypto::fftsettings::ZkFFTSettings;
     use zkcrypto::poly::ZPoly;
@@ -13,5 +13,10 @@ pub mod recover_tests {
     #[test]
     fn recover_random_() {
         recover_random::<blsScalar, ZkFFTSettings, ZPoly, ZPoly>();
+    }
+
+    #[test]
+    fn more_than_half_missing_() {
+        more_than_half_missing::<blsScalar, ZkFFTSettings, ZPoly, ZPoly>();
     }
 }

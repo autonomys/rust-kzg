@@ -66,6 +66,8 @@ pub trait G1: Clone + Default {
 
     fn dbl(&self) -> Self;
 
+    fn add(&self, b: &Self) -> Self;
+
     fn sub(&self, b: &Self) -> Self;
 
     fn equals(&self, b: &Self) -> bool;
@@ -134,6 +136,10 @@ pub trait FFTSettings<Coeff: Fr>: Default + Clone {
     fn get_reverse_roots_of_unity_at(&self, i: usize) -> Coeff;
 
     fn get_reversed_roots_of_unity(&self) -> &[Coeff];
+
+    fn get_roots_of_unity_at(&self, i: usize) -> Coeff;
+
+    fn get_roots_of_unity(&self) -> &[Coeff];
 }
 
 pub trait FFTSettingsPoly<Coeff: Fr, Polynomial: Poly<Coeff>, FSettings: FFTSettings<Coeff>> {
@@ -223,6 +229,8 @@ pub trait KZGSettings<
     ) -> Result<bool, String>;
 
     fn get_expanded_roots_of_unity_at(&self, i: usize) -> Coeff1;
+
+    fn get_roots_of_unity_at(&self, i: usize) -> Coeff1;
 }
 
 pub trait FK20SingleSettings<
