@@ -1,19 +1,19 @@
 use criterion::{criterion_group, criterion_main, Criterion};
-use kzg_bench::benches::das::bench_das_extension;
+use kzg_bench::benches::lincomb::bench_g1_lincomb;
 use mcl_rust::data_types::fr::Fr;
-use mcl_rust::fk20_fft::FFTSettings;
+use mcl_rust::data_types::g1::{g1_linear_combination, G1};
 use mcl_rust::mcl_methods::init;
 use mcl_rust::CurveType;
 
-fn bench_das_extension_(c: &mut Criterion) {
+fn bench_g1_lincomb_(c: &mut Criterion) {
     assert!(init(CurveType::BLS12_381));
-    bench_das_extension::<Fr, FFTSettings>(c);
+    bench_g1_lincomb::<Fr, G1>(c, &g1_linear_combination);
 }
 
 criterion_group! {
     name = benches;
     config = Criterion::default().sample_size(10);
-    targets = bench_das_extension_
+    targets = bench_g1_lincomb_
 }
 
 criterion_main!(benches);
