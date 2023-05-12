@@ -303,7 +303,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "blst_from_scratch"
+name = "blst_rust"
 version = "0.1.0"
 dependencies = [
  "blst",
@@ -379,17 +379,6 @@ checksum = "213030a2b5a4e0c0892b6652260cf6ccac84827b83a85a534e178e3906c4cf1b"
 dependencies = [
  "ciborium-io",
  "half",
-]
-
-[[package]]
-name = "ckzg"
-version = "0.1.0"
-dependencies = [
- "criterion",
- "kzg",
- "kzg-bench",
- "libc",
- "rand",
 ]
 
 [[package]]

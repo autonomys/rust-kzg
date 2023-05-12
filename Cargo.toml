@@ -1,9 +1,8 @@
 [workspace]
 resolver = "2"
 members = [
-    "Arkworks",
-    "blst-from-scratch",
-    "ckzg",
+    "arkworks",
+    "blst",
     "kzg",
     "kzg-bench",
     "mcl/kzg",
