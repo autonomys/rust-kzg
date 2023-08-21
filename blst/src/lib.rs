@@ -8,6 +8,7 @@ pub mod fft_g1;
 pub mod fk20_proofs;
 pub mod kzg_proofs;
 pub mod recovery;
+pub mod recovery_g1;
 pub mod types;
 pub mod utils;
 pub mod zero_poly;
